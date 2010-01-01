@@ -1,0 +1,29 @@
+#Ruby
+
+# Settings
+AREA_CODE = '717'                    # my area code
+GV_USER = 'username@gmail.com'       # my GV e-mail address (user@gmail.com)
+GV_PASS = 'GV password'              # my GV password
+SG_NUMBER = '415xxxyyyy'             # my 10-digit Sipgate number (not always 415)
+G5_NUMBER = '747xxxyyyy'             # my 10-digit Gizmo5 number (always 747)
+
+SPEED_DIAL = {                       # my speed dial numbers
+  '1'   => '19879879876',                 # Mom
+  '123' => '12345678901',                 # Work
+  '45'  => '417479876543',                # Gizmo BFF
+  '411' => '8004664411',                     # Google 411
+  '266' => '4153767253@podlinez.net',     # CNN Headlines
+}
+
+# Logic
+number = req.URI.User.to_s
+SPEED_DIAL[number] && number = SPEED_DIAL[number]
+case number
+  when /^4(1?747\d{7})$/ then sys.Dial("#{$1}@Gizmo5")
+  when /@/ then sys.Dial(number)
+  when /^1?([2-9]\d{2})?([2-9]\d{6})/
+    number = '1' + ( $1 || AREA_CODE ) + $2
+    vsp = SG_NUMBER =~ /^\d+$/ ? [SG_NUMBER,1] : [G5_NUMBER,7]
+    sys.GoogleVoiceCall(GV_USER,
+GV_PASS,vsp[0],number,'.*',vsp[1],30)
+end
