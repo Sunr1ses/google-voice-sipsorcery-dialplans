@@ -24,6 +24,5 @@ case number
   when /^1?([2-9]\d{2})?([2-9]\d{6})/
     number = '1' + ( $1 || AREA_CODE ) + $2
     vsp = SG_NUMBER =~ /^\d+$/ ? [SG_NUMBER,1] : [G5_NUMBER,7]
-    sys.GoogleVoiceCall(GV_USER,
-GV_PASS,vsp[0],number,'.*',vsp[1],30)
+    sys.GoogleVoiceCall(GV_USER,GV_PASS,vsp[0],number,'.*',vsp[1],30)
 end
