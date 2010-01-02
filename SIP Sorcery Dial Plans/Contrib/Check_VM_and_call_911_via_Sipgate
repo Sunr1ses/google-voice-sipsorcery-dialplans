@@ -1,0 +1,46 @@
+# Copyright 2009 "kushieda" and others.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+# This dialplan was contributed on 2009-12-27 by user kushieda
+# 
+# 1) Uses sipgate to call your own GV number so you can check your
+#    voicemail from the keypad (no browser required)
+# 2) Uses sipgate to call 911 since GV doesn't offer E911 services
+
+# Settings
+GV_USER = 'username@gmail.com'       # my GV e-mail address (user@gmail.com)
+GV_PASS = 'GV password'              # my GV password
+SG_NUMBER = '415xxxyyyy'             # my 10-digit Sipgate number (not always 415)
+GV_NUMBER = 'xxxyyyzzzz'             # my 10-digit Gizmo5 number (always 747)
+SG_PROVIDER_NAME = 'sipgate'     # my sipgate provider name configured in sipsorcery
+
+SPEED_DIAL = {                       # my speed dial numbers
+  '1'   => '19879879876',                 # Mom
+  '123' => '12345678901',                 # Work
+  '45'  => '417479876543',                # Gizmo BFF
+  '266' => '4153767253@podlinez.net',     # CNN Headlines
+}
+
+# Logic
+number = req.URI.User.to_s
+SPEED_DIAL[number] && number = SPEED_DIAL[number]
+
+case number
+  when '911' then
+    sys.Dial('911@' + SG_PROVIDER_NAME)
+  when /^1#{GV_NUMBER}$/o then
+    sys.Dial(number + '@' + SG_PROVIDER_NAME)
+  when /@/ then
+    sys.Dial(number)
+  else
+    sys.GoogleVoiceCall(GV_USER,GV_PASS,SG_NUMBER,number,GV_NUMBER,1,30)
+end
+
