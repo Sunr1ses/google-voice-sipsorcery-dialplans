@@ -1,0 +1,81 @@
+# =================== Your Info goes here ==============
+
+COUNTRY_CODE = '1'               #My country Code   
+AREA_CODE = '406'                #My area code                 
+GV_USER = 'srs49@case.edu'       # my GV e-mail address (user@gmail.com)
+GV_PASS = 'tippit06'             # my GV password
+SG_NUMBER = '4156516584'         # my 10-digit Sipgate number (not always 415)
+G5_NUMBER = '747xxxyyyy'         # my 10-digit Gizmo5 number (always 747)
+
+
+SPEED_DIAL = {                         # my speed dial numbers
+  '1'   => '18774210029',              # Work Con Call
+  '2'   => '18778487046',              # Dan Con Call
+  '45'  => '417479876543',             # Gizmo BFF
+  '411' => '8004664411',               # Google 411
+  '266' => '4153767253@podlinez.net',  # CNN Headlines
+  '714' => '17142739283'               # A
+}
+
+# =================== Phone Number logic==================
+number = req.URI.User.to_s
+SPEED_DIAL[number] && number = SPEED_DIAL[number]
+
+# To use a different provider = just edit the PROVIDER = line
+# for the applicable 'when' clauses
+# and make sure you have an equivalent 'when clause' in the Dialing Logic section
+
+case number
+  when /^4(1?747\d{7})$/             # If a Gizmo5 number use Gizmo5 direct
+#                                      4 optionally followed by 1 then 747 and then 7 or more digits
+      number = #{$1}                 # Just use the part of the number enclosed in ()
+      PROVIDER = 'DIRECT_TO_GIZMO'
+
+  when /@/                           # If a server address i.e. there is an @ from speed dial
+      PROVIDER = 'USE_SERVER'
+ 
+  when /^1?(800|888|866|877)\d{7}$/  #If optional '1' and toll free code number then 7 digits
+      PROVIDER = 'DIRECT_TO_SIPGATE' #Using sipgate may be faster than going through google
+
+  when /^[2-9]\d{9}$/                # If just area code + local number (in this case 10 digits)
+#                                      add country code
+    number = COUNTRY_CODE + number
+       PROVIDER = 'USE_SG_NUMBER'
+
+  when /^[2-9]\d{6}$/                # If a local number (in this case 7 digits)
+#                                     add country and area code
+    number = COUNTRY_CODE + AREA_CODE + number
+
+  when /^(\+|00|011)?(1?[2-9]{2,3}\d{6,})/      #If International Access and/or Country code
+#                                               plus a reasonable length number
+    if ($1 == '+') or ($1 == '00') then         # If used - force international prefix to 011 for GV
+      number = '011' + $2
+    end
+       PROVIDER = 'USE_SG_NUMBER'
+
+
+  else
+     sys.Log("This was not a valid number:  #{number}")
+
+     exit                                       #exit this dial plan
+end
+
+#=================== Dialing logic =========================
+
+# One 'when' clause per provider.  Note that 'USE_G5_NUMBER' is not used in this
+# example - since it is not used in the Phone Number Logic section
+# To add additional providers just add an appropriate 'when' clause and set the PROVIDER =
+# line in the apprlicable 'when' clauses of the Phone Logic section
+
+case PROVIDER
+  when 'DIRECT_TO_SIPGATE'
+    sys.Dial("#{number}@sipgate") 
+  when 'DIRECT_TO_GIZMO'
+    sys.Dial("#{number}@Gizmo5")
+  when 'USE_SERVER'
+    sys.Dial(number)
+  when 'USE_SG_NUMBER'
+    sys.GoogleVoiceCall(GV_USER,GV_PASS,SG_NUMBER,number,'.*',1,30)
+  when 'USE_G5_NUMBER' 
+    sys.GoogleVoiceCall(GV_USER,GV_PASS,G5_NUMBER,number,'.*',7,30)
+end
