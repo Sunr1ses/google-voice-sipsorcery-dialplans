@@ -1,0 +1,81 @@
+# Copyright(c) 2010 stuartofoz@gmail.com
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+# Settings
+
+COUNTRY_CODE = '1'                 #My country Code   
+AREA_CODE = '123'                    #My area code                 
+GV_USER = 'me@gmail.com'       # my GV e-mail address (user@gmail.com)
+GV_PASS = 'mypassword'             # my GV password
+SG_NUMBER = '415xxxyyyy'         # my 10-digit Sipgate number (not always 415)
+G5_NUMBER = '747xxxyyyy'         # my 10-digit Gizmo5 number (always 747)
+
+
+USE_SG_NUMBER = true                       # To use G5_NUMBER set to false (no quotes)
+
+USE_GIZMO_DIRECT = USE_SERVER = false      #Do not change these - just initializing
+
+SPEED_DIAL = {                         # my speed dial numbers
+  '1'   => '1xxxyyyzzzz',              # Work Con Call
+  '2'   => '1xxxyyyzzzz',              # Other Number
+  '45'  => '417479876543',             # Gizmo BFF
+  '411' => '8004664411',               # Google 411
+  '266' => '4153767253@podlinez.net',  # CNN Headlines
+  '714' => '1xxxyyyzzz'               # Someone else
+}
+
+# Phone Number logic
+number = req.URI.User.to_s
+SPEED_DIAL[number] && number = SPEED_DIAL[number]
+
+case number
+  when /^4(1?747\d{7})$/              # If a Gizmo5 number use Gizmo5 direct
+#                                                a 4 optionally followed by 1 then 747 and then 7 or more digits
+      number = #{$1}                    # Just use the part of the number enclosed in ()
+      USE_GIZMO_DIRECT = true
+
+  when /@/                           # If a server address i.e. there is an @ from speed dial
+      USE_SERVER = true
+ 
+  when /^\d{10}$/                     # If length indicates an area code + local number (in this case 10 digits)
+#                                              add country code
+    number = COUNTRY_CODE + number
+
+  when /^\d{7}$/                     # If length indicates a local number (in this case 7 digits)
+#                                            add country and area code
+    number = COUNTRY_CODE + AREA_CODE + number
+
+  when /^(\+|00|011)?(1?[2-9]{2,3}\d{6,})/      #If an international access code and/or 1 and/or a country code of 2 or 3 digits
+#                                                                plus a reasonable length local number (in this case 6 or more digits)
+    if ($1 == '+') or ($1 == '00') then              # If an international access code used - force it to 011 for GV
+      number = '011' + $2
+    end
+
+  else                                                                         #If the number does not fit any of the above
+     sys.Log("This was not a valid number:  #{number}")   #Write a message to the console
+     exit                                                                       #go no further - exit this dial plan
+end
+
+#Dialing logic
+
+if USE_GIZMO_DIRECT
+  sys.Dial("#{$1}@Gizmo5")
+
+elsif USE_SERVER
+  sys.Dial(number)
+
+elsif USE_SG_NUMBER
+sys.GoogleVoiceCall(GV_USER,GV_PASS,SG_NUMBER,number,'.*',1,30)
+
+else                                                  # Otherwise use G5_Number through Google
+sys.GoogleVoiceCall(GV_USER,GV_PASS,G5_NUMBER,number,'.*',7,30)
+end
