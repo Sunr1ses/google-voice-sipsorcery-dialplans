@@ -13,7 +13,7 @@
 AREA_CODE = '717'                  # my area code
 GV_USER   = 'username@gmail.com'   # my GV e-mail address (user@gmail.com)
 GV_PASS   = 'GV password'          # my GV password
-CB_NUMBER = '1747xxxyyyy'          # my 11-digit GV callback number (only one)
+CB_NUMBER = '1aaaxxxyyyy'          # my 11-digit GV callback number (only one)
 
 SPEED_DIAL = {                     # my speed dial numbers
  '1'   => '19879879876',          # Mom
