@@ -58,7 +58,7 @@ case number
 #                                     add country and area code
     number = COUNTRY_CODE + AREA_CODE + number
 
-  when /^(\+|00|011)?(1?[2-9]{2,3}\d{6,})/      #If International Access and/or Country code
+when /^(\+|00|011)?(1?[2-9][0-9]{1,2}\d{6,})/   #If International Access and/or Country code
 #                                               plus a reasonable length number
     if ($1 == '+') or ($1 == '00') then         # If used - force international prefix to 011 for GV
       number = '011' + $2
