@@ -1,0 +1,49 @@
+AREA_CODE = '717'                  # my area code 
+GV_USER   = 'username@gmail.com'   # my GV e-mail address (user@gmail.com) 
+GV_PASS   = 'GV password'          # my GV password 
+CB_NUMBER = '1aaaxxxyyyy'          # my 11-digit GV callback number 
+TIME_OUT  = 15                     # callback time-out (in seconds) 
+  
+SPEED_DIAL = {                     # my speed dial numbers 
+  '1'   => '19879879876',          # Mom 
+  '123' => '12345678901',          # Work 
+  '45'  => '17479876543',          # Gizmo BFF 
+  '411' => '8004664411',           # Google 411 
+  '266' => '4153767253@podlinez.net',     # CNN Headlines 
+} 
+
+begin 
+  sys.Log "** Call from #{req.Header.From} to #{req.URI.User} **" 
+  
+  if sys.Out    # if outbound call 
+    num = req.URI.User.to_s        # Get a string copy of the number to dial 
+  
+    num = SPEED_DIAL[num] || num   # Substitute with speed dial entry, if any 
+    
+    case num 
+      when /@/ then sys.Dial num   # URI dialing 
+      when /^[2-9]\d{6}$/          # Local call, 7-digit number 
+        num = '1'+ AREA_CODE + num # prefix it with country and area code 
+      when /^[01]?([2-9]\d{9})/    # US number with or without country code 
+        num = '1' + $1             # add country code and truncate number to 10-digit 
+      when /^(011|00|\+)(\d{10,})/ # international number 
+        num = '+' + $2             # GoogleVoiceCall works with '+' prefix only 
+      else sys.Respond 603, 'Wrong number, check & dial again' 
+    end 
+
+    cb = CB_NUMBER.to_a            # convert into arrays 
+    tmo = TIME_OUT.to_a 
+  
+    sys.Log "Calling #{num} via Google Voice" 
+
+    cb.length.times do |i|    
+      sys.GoogleVoiceCall GV_USER, GV_PASS, cb[i], num, '.*', cb[i] =~ /^1747/ ? 7 : 1, tmo[i%tmo.length] 
+    end 
+  
+  else          # sys.Out 
+    sys.Dial "#{sys.Username}@local" 
+  end 
+  
+rescue 
+  sys.Log("** Error: " + $!) unless $!.to_s =~ /Thread was being aborted./ 
+end
