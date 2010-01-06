@@ -14,9 +14,9 @@
 
 COUNTRY_CODE = '1'               #My country Code   
 AREA_CODE = '406'                #My area code                 
-GV_USER = 'srs49@case.edu'       # my GV e-mail address (user@gmail.com)
-GV_PASS = 'tippit06'             # my GV password
-SG_NUMBER = '4156516584'         # my 10-digit Sipgate number (not always 415)
+GV_USER = 'user@gmail.com'       # my GV e-mail address (user@gmail.com)
+GV_PASS = 'password'             # my GV password
+SG_NUMBER = '415xxxyyyy'         # my 10-digit Sipgate number (not always 415)
 G5_NUMBER = '747xxxyyyy'         # my 10-digit Gizmo5 number (always 747)
 
 
