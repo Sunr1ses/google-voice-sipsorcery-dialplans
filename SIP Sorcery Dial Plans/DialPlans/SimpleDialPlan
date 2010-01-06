@@ -1,3 +1,4 @@
+# Note: Temporarily restored earlier version until issue 8 gets resolved
 # Copyright(c) 2010 Mike Telis
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,7 @@
 AREA_CODE = '717'                  # my area code
 GV_USER   = 'username@gmail.com'   # my GV e-mail address (user@gmail.com)
 GV_PASS   = 'GV password'          # my GV password
-CB_NUMBER = '1aaaxxxyyyy'          # my 11-digit GV callback number (only one)
+CB_NUMBER = '1747xxxyyyy'          # my 11-digit GV callback number (only one)
 
 SPEED_DIAL = {                     # my speed dial numbers
  '1'   => '19879879876',          # Mom
@@ -37,15 +38,12 @@ begin
        num = '1'+ AREA_CODE + num # prefix it with country and area code
      when /^[01]?([2-9]\d{9})/    # US number with or without country code
        num = '1' + $1             # add country code and truncate number to 10-digit
-     when /^(011|00|\+)(\d{10,})/ # international number
-       num = '+' + $2             # GoogleVoiceCall works with '+' prefix only
-
-
+     when /^(011|\+)\d{10,}/      # international number
      else sys.Respond 603, 'Wrong number, check & dial again'
    end
 
    sys.Log "Calling #{num} via Google Voice"
-   sys.GoogleVoiceCall GV_USER, GV_PASS, CB_NUMBER, num, '.*', CB_NUMBER =~ /^1747/ ? 7 : 1, 30
+   sys.GoogleVoiceCall GV_USER, GV_PASS, CB_NUMBER, num, '.*', CB_NUMBER =~ /^1747/ ? 7 : 1, 15
 
  else          # sys.Out
    sys.Dial "#{sys.Username}@local"
