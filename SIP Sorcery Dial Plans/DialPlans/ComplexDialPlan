@@ -16,6 +16,8 @@
 # Note: This script works with both gizmo5 and sipgate but some EDITS ARE
 #    REQUIRED to indicate which SIP provider is being used
   
+# Click "View raw file" in the lower right for the best copy/paste view
+
 # --------BEGIN MANDATORY ENTRIES SECTION-----------------------------#                     
   
 Area = '215'          # my area code, this will be added to 7-digit dialouts
