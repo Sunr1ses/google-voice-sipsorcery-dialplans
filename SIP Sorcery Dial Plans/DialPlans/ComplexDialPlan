@@ -97,7 +97,7 @@ ExcludedPrefixes = [
    '45 (8|9) 0',                      # Denmark Premium (...)
    '33 (7|9)',                        # France Premium
    '49 (1 | 900)',                    # Germany Premium
-   '39 [^3]',                         # Italy Premium (...)
+   '39 (1 | 84 | 89)',                # Italy Premium (...)
    '31 (14 | 6 (3|8|9) | 8 | 9)',     # Netherlands Premium (...)
    '48 (39 | (2|7|8) 0)',             # Poland Premium
    '46 9 (00 | 39 | 44)',             # Sweden Premium
@@ -255,7 +255,7 @@ if sys.In               # If incoming call...
   
     name = ('1' + name) if name =~ /^[2-9]\d\d[2-9]\d{6}$/
   
-    name.sub!(/^011/,'') # Remove 011 prefix added by Google Voice
+    name.sub!(/^(\+|00|011)/,'')       # Remove international prefixes, if any
   
     sys.Log("FromName: '#{name}'")
     req.Header.From.FromName = name    # Set FromName for sys.Dial
