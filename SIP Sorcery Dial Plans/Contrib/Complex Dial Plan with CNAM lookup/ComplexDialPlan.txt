@@ -76,7 +76,7 @@ CNAM = {
    
 # Serviced domains, must be in lowercase!
 
-Domains  = ['sipsorcery.com','sip1.sipsorcery.com','sip2.sipsorcery.com','174.129.234.254','174.129.236.7']
+Domains  = ['sipsorcery.com','sip1.sipsorcery.com','sip2.sipsorcery.com','184.73.242.215','184.73.243.48']
 
 # Enum list from sipbroker
 

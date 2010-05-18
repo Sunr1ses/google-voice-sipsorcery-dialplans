@@ -81,7 +81,7 @@ Speeddial = {
    
 # Serviced domains, must be in lowercase!
   
-Domains  = ['sipsorcery.com','174.129.236.7']
+Domains  = ['sipsorcery.com','sip1.sipsorcery.com','sip2.sipsorcery.com','184.73.242.215','184.73.243.48']
   
 # Excluded Prefixes. Provides a safeguard against accidentally calling premium
 # numbers. Accepts both strings and patterns, spaces ignored
