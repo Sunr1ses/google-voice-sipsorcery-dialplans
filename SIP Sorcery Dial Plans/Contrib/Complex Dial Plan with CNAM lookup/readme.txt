@@ -85,6 +85,13 @@ case...when statement as follows:
          else
            gvcall PAaccount
 
+If you want to use your "other" GV account for checking voicemail your primary
+GV, put the following right after case @num:
+
+  case @num
+    when "12125551212"                   # My Google Voice number
+      gvcall VMaccount                   # call it using my other GV account
+
 gvcall method accepts two more arguments (optional): number or retries and
 initial index. If you want it to make 2 attempts using callback numbers
 linked to NYaccount in sequential order, put
