@@ -1,0 +1,92 @@
+AREA_CODE = '717'                  # my area code 
+GV_USER   = 'username@gmail.com'   # my GV e-mail address (user@gmail.com) 
+GV_PASS   = 'GV password'          # my GV password 
+CB_NUMBER = '1aaaxxxyyyy'          # my 11-digit GV callback number 
+TIME_OUT  = 15                     # callback time-out (in seconds) 
+
+# Uncomment 3 lines below and insert your primary GV phone number, your 2nd
+# GV account name and password, respectively. 2nd account will be used to call
+# your primary GV number so that you could check voicemail from your ATA
+# Note that your 2nd account should have the same callback number(s) as primary
+
+# GV_NUMBER = '12125551212'          # My GV number
+# VM_USER   = 'username@gmail.com'   # my 2nd GV e-mail address (user@gmail.com)
+# VM_PASS   = 'GV password'          # my GV password 
+  
+SPEED_DIAL = {                     # my speed dial numbers 
+  '1'   => '19879879876',          # Mom 
+  '123' => '12345678901',          # Work 
+  '45'  => '17479876543',          # Gizmo BFF 
+  '411' => '8004664411',           # Google 411 
+  '266' => '4153767253@podlinez.net',     # CNN Headlines 
+} 
+
+# CNAM table: number in ENUM format => caller's name
+
+CNAM = {
+ '12125551212' => 'Dear mom',
+ '12153332211' => 'Bratty kid',
+}
+
+# Uncomment next line and insert your White Pages API key, if you have it
+# WP_key = 'Your_White_Pages_API_key_here'      # White Pages API key
+
+begin 
+  sys.Log "** Call from #{req.Header.From} to #{req.URI.User} **" 
+  sys.ExtendScriptTimeout(15)      # preventing long running dialscript time-out
+  
+  if sys.Out    # if outbound call 
+    num = req.URI.User.to_s        # Get a string copy of the number to dial 
+  
+    num = SPEED_DIAL[num] || num   # Substitute with speed dial entry, if any 
+    
+    case num 
+      when /@/ then sys.Dial num   # URI dialing 
+      when /^[2-9]\d{6}$/          # Local call, 7-digit number 
+        num = '1'+ AREA_CODE + num # prefix it with country and area code 
+      when /^[01]?([2-9]\d{9})/    # US number with or without country code 
+        num = '1' + $1             # add country code and truncate number to 10-digit 
+      when /^(011|00|\+)(\d{10,})/ # international number 
+        num = '+' + $2             # GoogleVoiceCall works with '+' prefix only 
+      else sys.Respond 603, 'Wrong number, check & dial again' 
+    end
+
+    user, pass = GV_USER, GV_PASS  # assume it's not VM call
+    user, pass = VM_USER, VM_PASS if defined?(GV_NUMBER) && num == GV_NUMBER
+
+    cb = CB_NUMBER.to_a            # convert into arrays 
+    tmo = TIME_OUT.to_a 
+  
+    sys.Log "Calling #{num} via Google Voice" 
+
+    cb.length.times do |i|    
+      sys.GoogleVoiceCall user, pass, cb[i], num, '.*', cb[i] =~ /^1?747/ ? 7 : 1, tmo[i%tmo.length] 
+    end 
+  
+  else          # sys.Out 
+    name = req.Header.from.FromURI.User.to_s    # Get caller ID
+
+    # Prepend 10-digit numbers with "1" (US country code) and remove int'l prefix (if present)
+
+    name = ('1' + name) if name =~ /^[2-9]\d\d[2-9]\d{6}$/
+    name.sub!(/^(\+|00|011)/,'')   # Remove international prefixes, if any
+
+    # Check CNAM first. If not found and US number, try to lookup caller's name in Whitepages
+
+    if !(cname = CNAM[name]) && name =~ /^1([2-9]\d\d[2-9]\d{6})$/ && defined?(WP_key)
+      url = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'http%3A%2F%2Fapi.whitepages.com%2Freverse_phone%2F1.0%2F%3Fphone%3D#{$1}%3Bapi_key%3D#{WP_key}'%20and%20itemPath%3D'wp.listings.listing'&format=json"
+      if js = sys.WebGet(url,4).to_s
+        cname, dname, city, state = %w(businessname displayname city state).map {|x| js =~ /"#{x}":"([^"]+)"/; $1}
+        cname ||= dname; cname ||= "#{city}, #{state}" if city && state
+      end
+    end
+
+    sys.Log("Caller's number: '#{name}'"); sys.Log("Caller's name:   '#{cname}'") if cname
+
+    sys.SetFromHeader(cname || name, nil, nil)  # Set FromName for sys.Dial
+    sys.Dial("#{sys.Username}@local[fu=#{name}]",45)
+  end 
+  
+rescue 
+  sys.Log("** Error: " + $!) unless $!.to_s =~ /Thread was being aborted./ 
+end
