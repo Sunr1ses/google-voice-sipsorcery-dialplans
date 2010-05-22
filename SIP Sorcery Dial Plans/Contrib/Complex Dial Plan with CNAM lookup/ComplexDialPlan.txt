@@ -76,7 +76,7 @@ CNAM = {
    
 # Serviced domains, must be in lowercase!
 
-Domains  = ['sipsorcery.com','sip1.sipsorcery.com','sip2.sipsorcery.com','184.73.242.215','184.73.243.48']
+Domains  = ['sipsorcery.com','sip1.sipsorcery.com','sip2.sipsorcery.com','184.73.243.48','184.73.168.14']
 
 # Enum list from sipbroker
 
@@ -228,11 +228,13 @@ end
   
 def status
   begin
-    if (ptr = sys.LastDialled[0]).nil?
+    sys.LastDialled.each do |ptr|
       @code, @reason = 487, 'Cancelled by Sipsorcery'
-    else
-      ptr = ptr.TransactionFinalResponse
-      @code = ptr.StatusCode; @reason = ptr.ReasonPhrase
+      if ptr
+        ptr = ptr.TransactionFinalResponse
+        @code = ptr.StatusCode; @reason = ptr.ReasonPhrase; break if @code == 200
+#       sys.Log("#{ptr.ToString()}")
+      end
     end
   rescue
     @code, @reason = 480, 'No answer'
