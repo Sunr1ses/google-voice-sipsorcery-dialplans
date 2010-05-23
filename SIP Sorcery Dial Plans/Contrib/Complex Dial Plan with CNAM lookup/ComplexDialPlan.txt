@@ -228,6 +228,7 @@ end
   
 def status
   begin
+    @code, @reason = 480, 'No answer'
     sys.LastDialled.each do |ptr|
       @code, @reason = 487, 'Cancelled by Sipsorcery'
       if ptr
@@ -237,7 +238,6 @@ def status
       end
     end
   rescue
-    @code, @reason = 480, 'No answer'
   end
 end
 
