@@ -4,21 +4,21 @@ GV_PASS   = 'GV password'          # my GV password
 CB_NUMBER = '1aaaxxxyyyy'          # my 11-digit GV callback number 
 TIME_OUT  = 15                     # callback time-out (in seconds) 
 
-# Uncomment 3 lines below and insert your primary GV phone number, your 2nd
-# GV account name and password, respectively. 2nd account will be used to call
+# Uncomment 3 lines below and insert your primary GV phone number, your secondary
+# GV account name and password, respectively. The second account will be used to call
 # your primary GV number so that you could check voicemail from your ATA
-# Note that your 2nd account should have the same callback number(s) as primary
+# Note that your 2nd account must be configured with the same callback number(s) as primary
 
-# GV_NUMBER = '12125551212'          # My GV number
-# VM_USER   = 'username@gmail.com'   # my 2nd GV e-mail address (user@gmail.com)
-# VM_PASS   = 'GV password'          # my GV password 
+# GV_NUMBER = '12125551212'          # My primary GV number
+# VM_USER   = 'username@gmail.com'   # my secondary GV e-mail address (user@gmail.com)
+# VM_PASS   = 'GV password'          # my secondary GV password 
   
 SPEED_DIAL = {                     # my speed dial numbers 
   '1'   => '19879879876',          # Mom 
   '123' => '12345678901',          # Work 
   '45'  => '17479876543',          # Gizmo BFF 
   '411' => '8004664411',           # Google 411 
-  '266' => '4153767253@podlinez.net',     # CNN Headlines 
+  '266' => '4153767253@podlinez.net',     # CNN Headlines
 } 
 
 # CNAM table: number in ENUM format => caller's name
