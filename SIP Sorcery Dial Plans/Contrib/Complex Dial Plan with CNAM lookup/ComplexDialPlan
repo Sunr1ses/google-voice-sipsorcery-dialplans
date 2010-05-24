@@ -76,7 +76,7 @@ CNAM = {
    
 # Serviced domains, must be in lowercase!
 
-Domains  = ['sipsorcery.com','sip1.sipsorcery.com','sip2.sipsorcery.com','184.73.243.48','184.73.168.14']
+Domains  = ['sipsorcery.com','sip.sipsorcery.com','sip1.sipsorcery.com','sip2.sipsorcery.com','69.59.142.213']
 
 # Enum list from sipbroker
 
@@ -210,10 +210,10 @@ end
 
 def gvcall accounts, n = [2,accounts.length].min, r = 0
   n.times do |acnt|
-    a = {:num => @num, :tmo => 15, :match => '.*'}  # init with num & default values
-    a.update(accounts[(acnt+r) % accounts.length])  # add other params
-    a[:cb].gsub!(/\D/,'')                           # Delete all but digits
-    a[:type] ||= (a[:cb] =~ /^1?747/) ? 7 : 1       # if no type, define it depending on area code
+    a = {:num => @num, :tmo => 15, :match => '.*'}   # init with num & default values
+    a.update(accounts[(acnt+r) % accounts.length])   # add other params
+    a[:cb].gsub!(/\D/,'')                            # Delete all but digits
+    a[:type] ||= (a[:cb] =~ /^1?747/) ? Gizmo : Home # if no type, define it depending on area code
     sys.GoogleVoiceCall *a.values_at(:usr, :pwd, :cb, :num, :match, :type, :tmo)
   end
 end
@@ -228,9 +228,8 @@ end
   
 def status
   begin
-    @code, @reason = 480, 'No answer'
+    @code, @reason = 487, 'Cancelled by Sipsorcery'
     sys.LastDialled.each do |ptr|
-      @code, @reason = 487, 'Cancelled by Sipsorcery'
       if ptr
         ptr = ptr.TransactionFinalResponse
         @code = ptr.StatusCode; @reason = ptr.ReasonPhrase; break if @code == 200
@@ -277,8 +276,9 @@ begin
     name = ('1' + name) if name =~ /^[2-9]\d\d[2-9]\d{6}$/
     name.sub!(/^(\+|00|011)/,'')   # Remove international prefixes, if any
 
-    req.URI.User.to_s =~ /(.*)\.#{sys.Username}/
-    trunk = $1                  # get trunk name
+    prs = req.URI.User.split('.')  # parse User into chunks
+    trunk = prs[-2].to_s           # get trunk name
+    user  = prs[-1]                # called user name
 
     # Check CNAM first. If not found and US number, try to lookup caller's name in Whitepages
 
@@ -294,13 +294,13 @@ begin
 
     sys.SetFromHeader(formatNum(cname || name), nil, nil)  # Set FromName for sys.Dial
 
-    @code, @reason = 480, "#{sys.Username} is asleep" # assume night hour
+    @code, @reason = 480, "#{user} is asleep" # assume night hour
 
     # Forward call to bindings
     # Change FromURI when forwarding to @local, or else Bria won't
     # find contact in its phonebook!
 
-    callswitch("#{sys.Username}@local[fu=#{name}]",45) unless (30..745) === @t.hour*100 + @t.min # forward straight to VM from 0:30a to 7:45a
+    callswitch("#{user}@local[fu=#{name}]",45) unless (30..745) === @t.hour*100 + @t.min # forward straight to VM from 0:30a to 7:45a
 
     sys.Respond(486,"Sleeping ...") if trunk =~ /IPCOMM/i ## temporary fix for IPCOMMS
 
