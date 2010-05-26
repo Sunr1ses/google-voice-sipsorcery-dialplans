@@ -1,6 +1,6 @@
 #Ruby
 
-# Copyright 2010 Mike Telis and Steven Jackson
+# Copyright 2010 Mike Telis
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -116,7 +116,7 @@ def selectVSP    # VoIP provider selection
   
 # Reject calls to premium numbers unless VSP was forced
   
-  ExcludedPrefixes.each {|p| p.gsub!(/\s*/,''); sys.Respond(503,"Calls to #{$1}* not allowed") if @num =~ Regexp.new("^(#{p})")}
+  ExcludedPrefixes.each {|p| p.gsub!(/\s*/,''); rejectCall(503,"Calls to #{$1}* not allowed") if @num =~ Regexp.new("^(#{p})")}
   
   case @num
     when /^1([2-9]\d\d)/                 # North America
@@ -133,7 +133,7 @@ def selectVSP    # VoIP provider selection
        route(3,"Destination - Israel mobile")
 
     else
-      sys.Respond(603,"Number's too short, check & dial again") if @num.length < 10
+      rejectCall(603,"Number's too short, check & dial again") if @num.length < 10
       route(0,"Default route applied")
   end
 end
@@ -168,7 +168,7 @@ def callswitch(num,*args)
           @num = '1' + $1           # add country code and truncate number to 10-digit
         when /^\*/                  # Voxalot voicemail, echotest & other special numbers
           else
-            sys.Respond(603,'Wrong number, check & dial again')
+            rejectCall(603,'Wrong number, check & dial again')
       end
     end
   
@@ -240,22 +240,30 @@ def status
   end
 end
 
+# ************************  r e j e c t C a l l  ***************************
+
+def rejectCall code, reason
+  @code = code; @reason = reason
+  sys.Respond code, reason
+end 
+
 # *************************  f o r m a t N u m  ****************************
 
 def formatNum(num)
   case num
-    when /^([17])(\d{3})(\d{3})(\d{4})$/,       # USA, Russia
-         /^(38)(\d{3})(\d{3})(\d{4})$/,         # Ukraine
-         /^(375)(\d{2})(\d{3})(\d{4})$/,        # Belarus
-         /^(41)(\d{2})(\d{3})(\d{4})$/,         # Swiss
-         /^(972|998)(\d{2})(\d{3})(\d{4})$/,    # Israel, Uzbekistan
-         /^(36)(\d)(\d{3})(\d{4})$/             # Hungary
+    when /^([17])(\d{3})(\d{3})(\d{4})$/,           # USA, Russia
+         /^(38)(\d{3})(\d{3})(\d{4})$/,             # Ukraine
+         /^(375|41|972|998)(\d{2})(\d{3})(\d{4})$/, # Belarus, Swiss, Israel, Uzbekistan
+         /^(36)(\d)(\d{3})(\d{4})$/                 # Hungary
 
       "+#$1 (#$2) #$3-#$4"
 
     when /^(33|44)(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/ # France, UK
 
       "+#$1 (#$2) #$3 #$4 #$5 #$6"
+
+    when /^(39)(\d+)$/                              # Italy
+      "+#$1 #$2"
 
     else num    # No match - skip formatting
   end
@@ -302,7 +310,7 @@ begin
 
     callswitch("#{user}@local[fu=#{name}]",45) unless (30..745) === @t.hour*100 + @t.min # forward straight to VM from 0:30a to 7:45a
 
-    sys.Respond(486,"Sleeping ...") if trunk =~ /IPCOMM/i ## temporary fix for IPCOMMS
+    rejectCall(486,"Sleeping ...") if trunk =~ /IPCOMM/i ## temporary fix for IPCOMMS
 
   else                    # Outbound call ...
 
