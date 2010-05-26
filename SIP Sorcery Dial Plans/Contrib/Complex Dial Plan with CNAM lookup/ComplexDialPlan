@@ -77,6 +77,7 @@ CNAM = {
 # Serviced domains, must be in lowercase!
 
 Domains  = ['sipsorcery.com','sip.sipsorcery.com','sip1.sipsorcery.com','sip2.sipsorcery.com','69.59.142.213']
+Host     =  'sipsorcery.com' # incoming calls will come with this host
 
 # Enum list from sipbroker
 
@@ -228,12 +229,11 @@ end
   
 def status
   begin
-    @code, @reason = 487, 'Cancelled by Sipsorcery'
+    @code, @reason = 487, 'Cancelled by Sipsorcery' unless @code
     sys.LastDialled.each do |ptr|
       if ptr
         ptr = ptr.TransactionFinalResponse
         @code = ptr.StatusCode; @reason = ptr.ReasonPhrase; break if @code == 200
-#       sys.Log("#{ptr.ToString()}")
       end
     end
   rescue
@@ -277,7 +277,7 @@ begin
     name.sub!(/^(\+|00|011)/,'')   # Remove international prefixes, if any
 
     prs = req.URI.User.split('.')  # parse User into chunks
-    trunk = prs[-2].to_s           # get trunk name
+    trunk = prs[-2]                # get trunk name
     user  = prs[-1]                # called user name
 
     # Check CNAM first. If not found and US number, try to lookup caller's name in Whitepages
@@ -292,7 +292,7 @@ begin
 
     sys.Log("Caller's number: '#{name}'"); sys.Log("Caller's name:   '#{cname}'") if cname
 
-    sys.SetFromHeader(formatNum(cname || name), nil, nil)  # Set FromName for sys.Dial
+    sys.SetFromHeader(formatNum(cname || name), nil, Host)  # Set FromName & FromHost for sys.Dial
 
     @code, @reason = 480, "#{user} is asleep" # assume night hour
 
