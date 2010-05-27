@@ -83,7 +83,7 @@ begin
 
     sys.Log("Caller's number: '#{name}'"); sys.Log("Caller's name:   '#{cname}'") if cname
 
-    sys.SetFromHeader(cname || name, nil, nil)  # Set FromName for sys.Dial
+    sys.SetFromHeader(formatNum(cname || name), nil, 'sipsorcery.com')  # Set FromName & FromHost for sys.Dial
     sys.Dial("#{sys.Username}@local[fu=#{name}]",45)
   end 
   
