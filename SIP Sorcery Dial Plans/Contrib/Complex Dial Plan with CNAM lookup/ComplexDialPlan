@@ -302,15 +302,14 @@ begin
 
     sys.SetFromHeader(formatNum(cname || name), nil, Host)  # Set FromName & FromHost for sys.Dial
 
-    @code, @reason = 480, "#{user} is asleep" # assume night hour
-
     # Forward call to bindings
     # Change FromURI when forwarding to @local, or else Bria won't
     # find contact in its phonebook!
 
     callswitch("#{user}@local[fu=#{name}]",45) unless (30..745) === @t.hour*100 + @t.min # forward straight to VM from 0:30a to 7:45a
 
-    rejectCall(486,"Sleeping ...") if trunk =~ /IPCOMM/i ## temporary fix for IPCOMMS
+    @code, @reason = 480, "#{user} is asleep" unless @code # if nothing else, must be night hour
+    @code = 486 if trunk =~ /IPCOMM/i ## *** temporary fix for IPCOMMS ***
 
   else                    # Outbound call ...
 
