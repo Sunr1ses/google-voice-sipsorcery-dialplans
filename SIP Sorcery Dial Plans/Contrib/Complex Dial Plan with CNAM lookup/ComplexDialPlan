@@ -88,35 +88,26 @@ EnumDB = [
  'e164.televolution.net',
  'enum.org',
 ]
+
+# Uncomment line below to enable misdialing safeguards
+
+EnableSafeguards = 1
   
 # Excluded Prefixes. Provides a safeguard against accidentally calling premium
 # numbers. Accepts both strings and patterns, spaces ignored
   
 ExcludedPrefixes = [
-   ' 1 (900 | 976 | 809)',            # USA Premium
-   '44 (9 | 55 | 87 (0|1))',          # UK Premium
-   '44 84 (4|5)',                     # UK Local Premium
-   '44 70',                           # UK Personal Premium
-   '43 (8|9)',                        # Austria Premium
-   '32 (7|90)',                       # Belgium Premium
-   '45 (1 | 50 (1|2|3) | 70 (1|2))',  # Denmark Premium
-   '45 (8|9) 0',                      # Denmark Premium (...)
-   '33 (7|9)',                        # France Premium
-   '49 (1 | 900)',                    # Germany Premium
-   '39 (1 | 84 | 89)',                # Italy Premium (...)
-   '31 (14 | 6 (3|8|9) | 8 | 9)',     # Netherlands Premium (...)
-   '48 (39 | (2|7|8) 0)',             # Poland Premium
-   '46 9 (00 | 39 | 44)',             # Sweden Premium
-   '41 90 (0|1|6)',                   # Switzerland Premium
+   ' 1 (900 | 809)',               # USA Premium
+   ' 1 \d\d\d 555 1212',           # USA Directory assistance
+   '44 (9 | 55 | 70 | 84 | 87)',   # UK Premium
+   '49 (1 [^567] | 900)',          # Germany Premium
+   '39 (1 | 84 | 89)',             # Italy Premium 
+   '420 90',                       # Czech Premium 
 ]
   
 # ********************  s e l e c t   V S P  ***************
  
 def selectVSP    # VoIP provider selection
-  
-# Reject calls to premium numbers unless VSP was forced
-  
-  ExcludedPrefixes.each {|p| p.gsub!(/\s*/,''); rejectCall(503,"Calls to #{$1}* not allowed") if @num =~ Regexp.new("^(#{p})")}
   
   case @num
     when /^1([2-9]\d\d)/                 # North America
@@ -137,7 +128,19 @@ def selectVSP    # VoIP provider selection
       route(0,"Default route applied")
   end
 end
+
+# ****************************  C H E C K   N U M **************************
+
+def checkNum
+  @num.match(/^\D/) && return  # skip if number doesn't begin with a digit
+
+  # Reject calls to not blessed countries and premium numbers 
+  # (unless VSP was forced using #n dial prefix)
   
+  rejectCall(503,"Calls to this country not allowed") unless @num.match "^(#{Allowed_Country.join('|')})"
+  rejectCall(503,"Calls to #$&* not allowed") if @num.match '^(' + ExcludedPrefixes.map { |x| "(:?#{x.gsub(/\s*/,'')})" }.join('|') + ')'
+end  
+
 # **************************  C A L L    S W I T C H  **********************
   
 def callswitch(num,*args)
@@ -177,6 +180,8 @@ def callswitch(num,*args)
     @l = "Forced routing to provider #{@p}, template '#{VSPtab[@p]}'" # Assume user explicitly selected VSP
   
     if @p.empty?        # Automatic VSP selection?
+      checkNum if defined? EnableSafeguards
+      
       route                 # re-initialize variables
       selectVSP             # Pick appropriate provider for the call
 
@@ -251,10 +256,11 @@ end
 
 def formatNum(num)
   case num
-    when /^([17])(\d{3})(\d{3})(\d{4})$/,           # USA, Russia
-         /^(38)(\d{3})(\d{3})(\d{4})$/,             # Ukraine
-         /^(375|41|972|998)(\d{2})(\d{3})(\d{4})$/, # Belarus, Swiss, Israel, Uzbekistan
-         /^(36)(\d)(\d{3})(\d{4})$/                 # Hungary
+    when /^([17])(\d{3})(\d{3})(\d{4})$/,       # USA, Russia
+         /^(380|375)(\d{2})(\d{3})(\d{4})$/,    # Ukraine, Belarus
+         /^(41)(\d{2})(\d{3})(\d{4})$/,         # Swiss
+         /^(972|998)(\d{2})(\d{3})(\d{4})$/,    # Israel, Uzbekistan
+         /^(36)(\d)(\d{3})(\d{4})$/             # Hungary
 
       "+#$1 (#$2) #$3-#$4"
 
@@ -262,8 +268,13 @@ def formatNum(num)
 
       "+#$1 (#$2) #$3 #$4 #$5 #$6"
 
-    when /^(39)(\d+)$/                              # Italy
+    when /^(39|34|49)(\d+)$/                    # Italy, Spain, Germany
+
       "+#$1 #$2"
+
+    when /^(420)(\d{3})(\d{3})(\d{3})$/         # Czech Republic
+
+      "+#$1 #$2 #$3 #$4"
 
     else num    # No match - skip formatting
   end
