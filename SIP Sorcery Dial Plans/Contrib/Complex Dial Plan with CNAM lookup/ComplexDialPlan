@@ -147,11 +147,11 @@ end
 def callswitch(num,*args)
   route                 # Initialize vars
   
+  num.gsub!(/%(..)/) {$1.to_i(16).chr} # Convert %hh into ASCII
   @num = num unless @num = Speeddial[num]     # If there is speed dial entry for it...
   
   @l = "URI dialing: #{@num}" # Assume URI dialing
   unless @num =~ /@/          # If we already have URI, skip all number processing
-    @num.gsub!(/%(..)/) {$1.to_i(16).chr} # Convert %hh into ASCII  
 
     if @num =~ /^#(.)(.*)/    # If number starts with '#'
       @p = $1; @num = $2      # next char is VSP code
