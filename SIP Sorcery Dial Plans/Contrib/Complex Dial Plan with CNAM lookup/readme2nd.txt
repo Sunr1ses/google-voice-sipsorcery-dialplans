@@ -1,6 +1,6 @@
 How many times you misdialed a number and ended up calling to some exotic 
 country or a satellite network which had a bad impact on your bill? If none, 
-this topic is probably not for you.
+this topic probably is not for you.
 
 Complex dialplan is equipped with two safeguards (disabled by default) to 
 prevent you from inadvertent calling to undesired destination.
