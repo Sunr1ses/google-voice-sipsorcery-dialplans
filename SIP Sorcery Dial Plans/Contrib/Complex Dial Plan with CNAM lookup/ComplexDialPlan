@@ -125,7 +125,7 @@ def selectVSP    # VoIP provider selection
        route(3,"Destination - Israel mobile")
 
     else
-      rejectCall(603,"Number's too short, check & dial again") if @num.length < 10
+      rejectCall(603,"Number's too short, check & dial again") if @num.length < 9
       route(0,"Default route applied")
   end
 end
