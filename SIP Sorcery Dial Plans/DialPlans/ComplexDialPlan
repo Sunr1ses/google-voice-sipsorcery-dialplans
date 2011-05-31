@@ -69,9 +69,9 @@ Speeddial = {
   '1'   => 'wwwxxxyyyy',             # home speed dial
   '411' => '8004664411',               # Google's Directory Assistance, GOOG-411  
   '303' => '303@sip.blueface.ie',      # Blueface speaking clock (Ireland time)
-  '266' => '4153767253@podlinez.net',  # CNN Headlines (266 = "CNN")
-  '677' => '8186882773@podlinez.net',  # NPR's most e-mailed stories (677 ="NPR")                     
-  '742' => '6506441934@podlinez.net',  # Prairie Home Companion's, or PHC's
+  '266' => '4153767253@podlinez.com',  # CNN Headlines (266 = "CNN")
+  '677' => '8186882773@podlinez.com',  # NPR's most e-mailed stories (677 ="NPR")                     
+  '742' => '6506441934@podlinez.com',  # Prairie Home Companion's, or PHC's
                                        # News from Lake Wobegon (742 = "PHC")
    '932' => '7755333366',              # Columbus OH-based national weather (932 = "WEA[ther]")                    
   

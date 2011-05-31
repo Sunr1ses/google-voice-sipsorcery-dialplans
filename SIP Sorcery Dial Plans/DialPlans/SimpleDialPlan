@@ -22,7 +22,7 @@ SPEED_DIAL = {                     # my speed dial numbers
  '123' => '12345678901',          # Work
  '45'  => '17479876543',          # Gizmo BFF
  '411' => '8004664411',           # Google 411
- '266' => '4153767253@podlinez.net',     # CNN Headlines
+ '266' => '4153767253@podlinez.com',     # CNN Headlines
 }
 
 begin
