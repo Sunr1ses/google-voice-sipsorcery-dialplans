@@ -1,0 +1,9 @@
+This page describes a simple dial plan designed to get someone up and running very quickly, regardless of which SIP provider or providers with which you choose to use. In the dialplan you select, only entries in the "# Settings" section need to be modified before saving the dialplan.<p>
+
+There are up to four (4) entries that need to be customized in the Simple Dialplan. You must enter your Area Code to restore 7-digit dialing of local calls. You must enter your Google Account's email address and password, as well as the phone number that you have been assigned as an inbound SIP gateway. That means that if you have a sipate phone number and would like to use it for SIP calls, you must replace the phone number shown in the "CB_NUMBER" field with the actual phone number assigned to you by sipgate. Similarly, if the you have an IPKall forwarding account and would like to use it for SIP calls, you must replace the phone number shown in the "CB_NUMBER" field with the public phone number IPKall assigned to you. Please see wiki page 14, Customizing the Dialplans for all of the details regarding exactly what must be customized in each script.<br>
+<br>
+Copy and paste the entire script over top of the stock outbound dial plan, update the three required fields and the SIP phone number, click Update above the dial plan update window, and you are all set to go. <b>Remember:</b> You MUST click "Raw View" at the bottom of the right portion of the screen in order to copy the correct version into your SIP Sorcery account. If you do not click "Raw View" first, your dialplan WILL NOT WORK.<br>
+<br>
+<h1>Download</h1>
+
+The dial plan is now available on the Source tab of this site, and can be reached by clicking <a href='http://google-voice-sipsorcery-dialplans.googlecode.com/svn/trunk/SIP%20Sorcery%20Dial%20Plans/DialPlans/SimpleDialPlan'>here</a>.

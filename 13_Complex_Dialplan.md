@@ -1,0 +1,5 @@
+Here is a dial plan adaptable to both sipgate and IPKall that offers a speed dial directory that is accessible from every attached phone. Originally published by Mike Telis on mysipswitch.com, it is also capable of automatic routing across multiple SIP providers based on the phone number you are calling. You will need to edit the "Mandatory Configuration" section with your Google Voice username, password, and your assigned IPKall and/or sipgate phone numbers.
+
+Entries in the Mandatory Configuration section of the Complex Dialplan need to be modified before saving the dialplan. Please see wiki page 14, Customizing the Dialplans for all of the details on exactly what needs to be modified.
+
+The complex dial plan is available on the Source tab of this site, and is also available by clicking <a href='http://google-voice-sipsorcery-dialplans.googlecode.com/svn/trunk/SIP%20Sorcery%20Dial%20Plans/DialPlans/ComplexDialPlan'>here</a>

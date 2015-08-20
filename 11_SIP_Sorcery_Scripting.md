@@ -1,0 +1,5 @@
+**Note:** In order to use SIP Sorcery as intended in this context, be advised that you must enter your Google Voice userid and password **unencrypted** on a publicly-accessible system. SIP Sorcery takes care to ensure the privacy and security of your private information, but it is up to you to consider the risks involved in storing those details on a system not controlled by you and the implications of your Google account details potentially being exposed should the server be compromised.
+
+Key to taking advantage of SIP Sorcery's capabilities is their scripting feature. It is important to remember in all this that SIP is just a method for enabling computers to exchange audio (and other information) in a way that is compatible with what people know as "telephone calls". The scripts that SIP Sorcery supports are called dial plans. Dial plans instruct SIP Sorcery on how to route calls based on a variety of parameters. Only outbound dial plans are needed for integration with Google Voice.<p>
+
+Help pages and a small tutorial for developing Ruby scripts at SIP Sorcery can be found <a href='http://www.sipsorcery.com/help/dialplans.html'>here</a>.
